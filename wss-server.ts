@@ -117,3 +117,22 @@ const hocuspocusServer = new Server({
 
 hocuspocusServer.listen()
 console.log(`> WebSocket Server ready on ws://localhost:${port}`)
+
+// ---------------------------------------------------------
+// CRON JOB: Keep server awake on free hosting (Render, Railway, etc.)
+// ---------------------------------------------------------
+// Free tiers often sleep after 15 minutes of inactivity. 
+// This pings the server every 14 minutes to keep it alive.
+const KEEP_ALIVE_INTERVAL = 14 * 60 * 1000; // 14 minutes
+const APP_URL = process.env.WSS_PUBLIC_URL || `http://localhost:${port}`;
+
+setInterval(() => {
+  try {
+    console.log(`[Cron] Pinging ${APP_URL} to keep server awake...`);
+    fetch(APP_URL).catch(() => {
+      // Ignore fetch errors (e.g. if endpoint isn't fully valid HTTP)
+    });
+  } catch (error) {
+    console.error("[Cron] Ping failed", error);
+  }
+}, KEEP_ALIVE_INTERVAL);
