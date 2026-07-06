@@ -27,6 +27,8 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        env:
+          DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/editor?schema=public"
 
       - name: Generate Prisma Client
         run: pnpm prisma generate
