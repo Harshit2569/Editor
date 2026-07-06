@@ -58,8 +58,8 @@ export default async function SharedPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {documents.map((doc) => {
-            const role = doc.roles.find(r => r.userId === session?.user?.id)?.role || "VIEWER"
+          {documents.map((doc: any) => {
+            const role = doc.roles.find((r: any) => r.userId === session?.user?.id)?.role || "VIEWER"
               
             return (
               <DocumentCard 
