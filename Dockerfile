@@ -25,7 +25,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Install pnpm
-RUN corepack enable pnpm
+RUN npm install -g pnpm@9
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
