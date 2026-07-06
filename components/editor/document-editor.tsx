@@ -88,9 +88,9 @@ export function DocumentEditor({ documentId, onYdocReady }: DocumentEditorProps)
       clearTimeout(fallbackTimer)
       docProvider.destroy()
       setIsSynced(false)
-      setStatus("disconnected")
+      useSyncStore.getState().setStatus("disconnected")
     }
-  }, [documentId, session?.user?.id, setStatus])
+  }, [documentId, session?.user?.id]) // REMOVED setStatus to prevent infinite remount loops
 
   if (!provider || !isSynced) {
     return (
