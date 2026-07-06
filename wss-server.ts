@@ -72,45 +72,55 @@ const hocuspocusServer = new Server({
     }
   },
   async onAuthenticate(data: onAuthenticatePayload) {
-    const { token, documentName } = data
-    
-    if (!token) {
-      throw new Error("Unauthorized")
-    }
-    
-    const doc = await prisma.document.findUnique({
-      where: { id: documentName },
-      include: {
-        owner: { select: { name: true, email: true, image: true } },
-        roles: {
-          where: { userId: token },
-          include: { user: { select: { name: true, email: true, image: true } } }
+    try {
+      const { token, documentName } = data
+      console.log(`[Auth] Attempting auth for doc: ${documentName}, user: ${token}`)
+      
+      if (!token) {
+        console.log(`[Auth] Failed: No token provided`)
+        throw new Error("Unauthorized")
+      }
+      
+      const doc = await prisma.document.findUnique({
+        where: { id: documentName },
+        include: {
+          owner: { select: { name: true, email: true, image: true } },
+          roles: {
+            where: { userId: token },
+            include: { user: { select: { name: true, email: true, image: true } } }
+          }
+        }
+      })
+
+      if (!doc) {
+        console.log(`[Auth] Failed: Document ${documentName} not found in database`)
+        throw new Error("Document not found")
+      }
+
+      const isOwner = doc.ownerId === token
+      const userRole = doc.roles[0]
+
+      if (!isOwner && !userRole) {
+        console.log(`[Auth] Failed: User ${token} has no access to doc ${documentName}`)
+        throw new Error("Forbidden: No access to this document")
+      }
+      
+      const userProfile = isOwner ? doc.owner : userRole.user
+      console.log(`[Auth] Success for user ${userProfile.name || userProfile.email}`)
+
+      return {
+        connection: {
+          readOnly: !isOwner && userRole?.role === "VIEWER"
+        },
+        user: {
+          id: token,
+          name: userProfile.name || userProfile.email || "Anonymous",
+          role: isOwner ? "OWNER" : userRole.role
         }
       }
-    })
-
-    if (!doc) {
-      throw new Error("Document not found")
-    }
-
-    const isOwner = doc.ownerId === token
-    const userRole = doc.roles[0]
-
-    if (!isOwner && !userRole) {
-      throw new Error("Forbidden: No access to this document")
-    }
-    
-    const userProfile = isOwner ? doc.owner : userRole.user
-
-    return {
-      connection: {
-        readOnly: !isOwner && userRole?.role === "VIEWER"
-      },
-      user: {
-        id: token,
-        name: userProfile.name || userProfile.email || "Anonymous",
-        role: isOwner ? "OWNER" : userRole.role
-      }
+    } catch (error) {
+      console.error("[Auth] Exception during authentication:", error)
+      throw error;
     }
   },
 })
