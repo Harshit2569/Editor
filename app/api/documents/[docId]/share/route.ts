@@ -128,7 +128,7 @@ export async function GET(
     }
 
     // Only owner or people with roles can see the list
-    if (document.ownerId !== userId && !document.roles.some(r => r.userId === userId)) {
+    if (document.ownerId !== userId && !document.roles.some((r: any) => r.userId === userId)) {
       return new NextResponse("Forbidden", { status: 403 })
     }
 

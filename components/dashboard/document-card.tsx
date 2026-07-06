@@ -24,7 +24,7 @@ export function DocumentCard({ document, userRole, isTrashPage }: DocumentCardPr
   const [isActionLoading, setIsActionLoading] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
-  const allUsers = [document.owner, ...document.roles.map(r => r.user)]
+  const allUsers = [document.owner, ...document.roles.map((r: any) => r.user)]
   const displayUsers = allUsers.slice(0, 3)
   const extraUsers = allUsers.length > 3 ? allUsers.length - 3 : 0
 

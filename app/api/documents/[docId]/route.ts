@@ -38,7 +38,7 @@ export async function PATCH(
     }
 
     const isOwner = document.ownerId === userId
-    const isCollaborator = document.roles.some(r => r.userId === userId)
+    const isCollaborator = document.roles.some((r: any) => r.userId === userId)
 
     if (!isOwner && !isCollaborator) {
       return new NextResponse("Unauthorized", { status: 401 })

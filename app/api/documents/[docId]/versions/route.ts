@@ -51,7 +51,7 @@ export async function GET(
       }
     })
 
-    return NextResponse.json(versions.map(v => ({
+    return NextResponse.json(versions.map((v: any) => ({
       id: v.id,
       name: v.label,
       createdAt: v.createdAt
@@ -92,7 +92,7 @@ export async function POST(
     }
 
     const isOwner = document.ownerId === session.user.id
-    const hasWriteRole = document.roles.some(r => r.role === "EDITOR")
+    const hasWriteRole = document.roles.some((r: any) => r.role === "EDITOR")
 
     if (!isOwner && !hasWriteRole) {
       return new NextResponse("Forbidden", { status: 403 })
