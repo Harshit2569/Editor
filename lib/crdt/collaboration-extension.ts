@@ -20,12 +20,13 @@
 import { Extension } from "@tiptap/react"
 import { ySyncPlugin, yCursorPlugin, ySyncPluginKey } from "y-prosemirror"
 import * as Y from "yjs"
+import type { Awareness } from "y-protocols/awareness"
 
 export interface YjsCollaborationOptions {
   /** The Yjs document to sync with the editor */
   document: Y.Doc
   /** Awareness instance from HocuspocusProvider for cursor broadcasting */
-  awareness: any | null
+  awareness: Awareness | null
   /** Local user info for cursor rendering */
   user: {
     name: string
@@ -45,8 +46,8 @@ export const YjsCollaboration = Extension.create<YjsCollaborationOptions>({
 
   addOptions() {
     return {
-      document: null as any,
-      awareness: null as any,
+      document: null as unknown as Y.Doc,
+      awareness: null as unknown as Awareness,
       user: {
         name: "Anonymous",
         color: "#6B7280",

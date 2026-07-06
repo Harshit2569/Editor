@@ -51,12 +51,12 @@ export async function GET(
       }
     })
 
-    return NextResponse.json(versions.map((v: any) => ({
+    return NextResponse.json(versions.map((v) => ({
       id: v.id,
-      name: v.label,
+      name: v.label || "Untitled",
       createdAt: v.createdAt
     })))
-  } catch (error) {
+  } catch {
     return new NextResponse("Internal Error", { status: 500 })
   }
 }
@@ -92,7 +92,7 @@ export async function POST(
     }
 
     const isOwner = document.ownerId === session.user.id
-    const hasWriteRole = document.roles.some((r: any) => r.role === "EDITOR")
+    const hasWriteRole = document.roles.some((r: { role: string }) => r.role === "EDITOR")
 
     if (!isOwner && !hasWriteRole) {
       return new NextResponse("Forbidden", { status: 403 })

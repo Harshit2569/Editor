@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import prisma from "@/lib/db"
 import bcrypt from "bcryptjs"
 import { z } from "zod"
+import { Role } from "@prisma/client"
 
 import { rateLimit } from "@/lib/security/rate-limit"
 
@@ -50,7 +51,7 @@ export async function POST(req: Request) {
     })
 
     if (pendingInvitations.length > 0) {
-      const documentRoles = pendingInvitations.map((inv: any) => ({
+      const documentRoles = pendingInvitations.map((inv: { documentId: string, role: Role }) => ({
         documentId: inv.documentId,
         userId: user.id,
         role: inv.role,

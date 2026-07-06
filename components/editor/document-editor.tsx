@@ -21,7 +21,12 @@ export function DocumentEditor({ documentId, onYdocReady }: DocumentEditorProps)
   const [provider, setProvider] = useState<DocumentProvider | null>(null)
   const [isSynced, setIsSynced] = useState(false)
   const engineRef = useRef<SyncEngine | null>(null)
-  const { setStatus } = useSyncStore()
+
+  const onYdocReadyRef = useRef(onYdocReady)
+
+  useEffect(() => {
+    onYdocReadyRef.current = onYdocReady
+  }, [onYdocReady])
 
   // Initialize Yjs and Hocuspocus
   useEffect(() => {
@@ -72,15 +77,20 @@ export function DocumentEditor({ documentId, onYdocReady }: DocumentEditorProps)
     docProvider.connect()
 
     // Debugging logs for Hocuspocus connection lifecycle
-    docProvider.provider.on('status', (data: any) => console.log('[Hocuspocus] Status changed:', data.status))
-    docProvider.websocketProvider.on('status', (data: any) => console.log('[Hocuspocus WS] Status changed:', data.status))
+    docProvider.provider.on('status', (data: { status: string }) => console.log('[Hocuspocus] Status changed:', data.status))
+    docProvider.websocketProvider.on('status', (data: { status: string }) => console.log('[Hocuspocus WS] Status changed:', data.status))
     docProvider.provider.on('disconnect', () => console.log('[Hocuspocus] Disconnected'))
     docProvider.provider.on('destroy', () => console.log('[Hocuspocus] Destroyed'))
 
-    setProvider(docProvider)
+    // Wrap in setTimeout to avoid synchronous state update in effect
+    setTimeout(() => {
+      if (!destroyed) {
+        setProvider(docProvider)
+      }
+    }, 0)
     
-    if (onYdocReady) {
-      onYdocReady(docProvider.ydoc)
+    if (onYdocReadyRef.current) {
+      onYdocReadyRef.current(docProvider.ydoc)
     }
 
     return () => {
@@ -147,7 +157,9 @@ export function DocumentEditor({ documentId, onYdocReady }: DocumentEditorProps)
   )
 }
 
-function TiptapEditor({ provider, session }: { provider: DocumentProvider; session: any }) {
+import { Session } from "next-auth"
+
+function TiptapEditor({ provider, session }: { provider: DocumentProvider; session: Session | null }) {
   const userColor = getRandomColor(session?.user?.id)
 
   const editor = useEditor({
@@ -156,7 +168,7 @@ function TiptapEditor({ provider, session }: { provider: DocumentProvider; sessi
       StarterKit.configure({
         // Disable ProseMirror's built-in history — Yjs handles undo/redo
         history: false,
-      } as any),
+      } as Record<string, unknown>),
       YjsCollaboration.configure({
         document: provider.ydoc,
         awareness: provider.provider.awareness,

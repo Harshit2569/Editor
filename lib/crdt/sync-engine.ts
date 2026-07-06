@@ -32,7 +32,7 @@ export class SyncEngine {
 
   private setupListeners() {
     const store = useSyncStore.getState()
-    const { provider, ydoc, persistence } = this.provider
+    const { provider, ydoc } = this.provider
 
     // Listen to network status
     if (typeof window !== "undefined") {

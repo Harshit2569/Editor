@@ -1,10 +1,10 @@
 "use client"
 
 import { useSyncStore } from "@/lib/crdt/sync-engine"
-import { Cloud, CloudOff, RefreshCw, CheckCircle2 } from "lucide-react"
+import { Cloud, CloudOff, RefreshCw } from "lucide-react"
 
 export function ConnectionStatus() {
-  const { status, pendingChanges, lastSyncedAt } = useSyncStore()
+  const { status } = useSyncStore()
 
   if (status === "connecting") {
     return (

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { format } from "date-fns"
 import { History, X, Save, Clock, ChevronRight } from "lucide-react"
 import { toast } from "sonner"
@@ -26,13 +26,7 @@ export function VersionPanel({ documentId, ydoc, isOpen, onClose, onRestore }: V
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchVersions()
-    }
-  }, [isOpen, documentId])
-
-  const fetchVersions = async () => {
+  const fetchVersions = useCallback(async () => {
     setIsLoading(true)
     try {
       const res = await fetch(`/api/documents/${documentId}/versions`)
@@ -40,12 +34,21 @@ export function VersionPanel({ documentId, ydoc, isOpen, onClose, onRestore }: V
         const data = await res.json()
         setVersions(data)
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to fetch version history")
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [documentId])
+
+  useEffect(() => {
+    if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchVersions()
+    }
+  }, [isOpen, fetchVersions])
+
+
 
   const handleCreateSnapshot = async () => {
     setIsSaving(true)
@@ -64,7 +67,7 @@ export function VersionPanel({ documentId, ydoc, isOpen, onClose, onRestore }: V
       } else {
         toast.error("Failed to save version")
       }
-    } catch (error) {
+    } catch {
       toast.error("Error creating snapshot")
     } finally {
       setIsSaving(false)
@@ -86,7 +89,7 @@ export function VersionPanel({ documentId, ydoc, isOpen, onClose, onRestore }: V
         toast.success("Version restored")
         onClose()
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to restore version")
     }
   }

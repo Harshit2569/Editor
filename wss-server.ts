@@ -37,7 +37,7 @@ const hocuspocusServer = new Server({
   extensions: [
     new Logger(),
     new Database({
-      fetch: async ({ documentName }: any) => {
+      fetch: async ({ documentName }: { documentName: string }) => {
         // documentName is the docId
         const doc = await prisma.document.findUnique({
           where: { id: documentName },
@@ -49,7 +49,7 @@ const hocuspocusServer = new Server({
         
         return doc.ydocState
       },
-      store: async ({ documentName, state, document }: any) => {
+      store: async ({ documentName, document }: { documentName: string, document: Y.Doc }) => {
         // Must use V1 encoding because Hocuspocus natively applies V1 updates when fetching.
         // Using V2 will silently break the Y.Doc on the server.
         const v1State = Y.encodeStateAsUpdate(document)
@@ -67,7 +67,7 @@ const hocuspocusServer = new Server({
       },
     }),
   ],
-  async onChange(data: any) {
+  async onChange(data: { update: Uint8Array }) {
     // Validate incoming changes to prevent malicious payloads
     try {
       if (data.update && data.update.byteLength > 1_000_000) {

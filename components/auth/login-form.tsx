@@ -45,10 +45,10 @@ export function LoginForm() {
       router.refresh()
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const newErrors: any = {}
-        error.issues.forEach((err: any) => {
-          if (err.path[0]) {
-            newErrors[err.path[0]] = err.message
+        const newErrors: Record<string, string> = {}
+        error.issues.forEach((err: z.ZodIssue) => {
+          if (err.path[0] !== undefined) {
+            newErrors[String(err.path[0])] = err.message
           }
         })
         setErrors(newErrors)

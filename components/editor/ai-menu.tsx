@@ -52,8 +52,6 @@ export function AiMenu({ editor }: AiMenuProps) {
       // Handle stream
       const reader = response.body?.getReader()
       const decoder = new TextDecoder()
-      let resultText = ''
-
       if (reader) {
         // Prepare editor position
         let insertPos = selection.to
@@ -85,7 +83,7 @@ export function AiMenu({ editor }: AiMenuProps) {
                       const textContent = JSON.parse(line.substring(2))
                       editor.chain().focus().insertContentAt(insertPos, textContent).run()
                       insertPos += textContent.length
-                  } catch (e) {
+                  } catch {
                       // Ignore parse errors on partial chunks
                   }
               }
@@ -96,9 +94,10 @@ export function AiMenu({ editor }: AiMenuProps) {
       setSuccess(true)
       setTimeout(() => setSuccess(false), 2000)
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err)
-      setError(err.message || "Failed to generate AI response")
+      const errorMessage = err instanceof Error ? err.message : "Failed to generate AI response";
+      setError(errorMessage)
       setTimeout(() => setError(null), 3000)
     } finally {
       setIsLoading(false)

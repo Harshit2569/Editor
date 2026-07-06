@@ -2,6 +2,15 @@ import { Metadata } from "next"
 import { auth } from "@/lib/auth"
 import prisma from "@/lib/db"
 import { DocumentCard } from "@/components/dashboard/document-card"
+
+type DocumentType = {
+  id: string;
+  title: string;
+  updatedAt: Date;
+  ownerId: string;
+  owner: { name: string | null; image: string | null; email: string | null };
+  roles: { userId: string; role: string; user: { name: string | null; image: string | null; email: string | null } }[];
+};
 import { Users } from "lucide-react"
 
 export const metadata: Metadata = {
@@ -42,7 +51,7 @@ export default async function SharedPage() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Shared with me</h1>
-          <p className="text-zinc-400 mt-1">Documents you've been invited to collaborate on</p>
+          <p className="text-zinc-400 mt-1">Documents you&apos;ve been invited to collaborate on</p>
         </div>
       </div>
 
@@ -58,13 +67,13 @@ export default async function SharedPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {documents.map((doc: any) => {
-            const role = doc.roles.find((r: any) => r.userId === session?.user?.id)?.role || "VIEWER"
+          {documents.map((doc: DocumentType) => {
+            const role = doc.roles.find((r: { userId: string, role: string }) => r.userId === session?.user?.id)?.role || "VIEWER"
               
             return (
               <DocumentCard 
                 key={doc.id} 
-                document={doc as any} 
+                document={doc} 
                 userRole={role} 
               />
             )

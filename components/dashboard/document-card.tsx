@@ -1,9 +1,10 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { formatDistanceToNow } from "date-fns"
-import { FileText, MoreVertical, Clock, Users, Trash2, RotateCcw, XCircle } from "lucide-react"
+import { FileText, MoreVertical, Clock, Trash2, RotateCcw, XCircle } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 
 interface DocumentCardProps {
@@ -24,7 +25,7 @@ export function DocumentCard({ document, userRole, isTrashPage }: DocumentCardPr
   const [isActionLoading, setIsActionLoading] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
-  const allUsers = [document.owner, ...document.roles.map((r: any) => r.user)]
+  const allUsers = [document.owner, ...document.roles.map((r: { user: { name: string | null, image: string | null, email: string | null } }) => r.user)]
   const displayUsers = allUsers.slice(0, 3)
   const extraUsers = allUsers.length > 3 ? allUsers.length - 3 : 0
 
@@ -148,13 +149,19 @@ export function DocumentCard({ document, userRole, isTrashPage }: DocumentCardPr
             {displayUsers.map((user, i) => (
               <div 
                 key={i} 
-                className="w-7 h-7 rounded-full bg-zinc-800 border-2 border-zinc-900 flex items-center justify-center text-[10px] font-bold text-white relative z-10 overflow-hidden"
+                className="w-8 h-8 rounded-full border-2 border-zinc-950 bg-zinc-800 flex items-center justify-center overflow-hidden"
                 title={user.name || user.email || "Unknown user"}
               >
                 {user.image ? (
-                  <img src={user.image} alt={user.name || ""} className="w-full h-full object-cover" />
+                  <Image 
+                    src={user.image} 
+                    alt={user.name || "User"} 
+                    width={32}
+                    height={32}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center">
+                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-[10px] text-white font-bold">
                     {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || "?"}
                   </div>
                 )}

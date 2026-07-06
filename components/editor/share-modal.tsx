@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { X, Users, Shield, ShieldAlert, UserMinus, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -31,13 +31,7 @@ export function ShareModal({ documentId, isOpen, onClose }: ShareModalProps) {
   const [owner, setOwner] = useState<User | null>(null)
   const [roles, setRoles] = useState<Role[]>([])
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchRoles()
-    }
-  }, [isOpen, documentId])
-
-  const fetchRoles = async () => {
+  const fetchRoles = useCallback(async () => {
     setIsFetching(true)
     try {
       const res = await fetch(`/api/documents/${documentId}/share`)
@@ -46,12 +40,21 @@ export function ShareModal({ documentId, isOpen, onClose }: ShareModalProps) {
         setOwner(data.owner)
         setRoles(data.roles)
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to load collaborators")
     } finally {
       setIsFetching(false)
     }
-  }
+  }, [documentId])
+
+  useEffect(() => {
+    if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchRoles()
+    }
+  }, [isOpen, fetchRoles])
+
+
 
   const handleShare = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -73,7 +76,7 @@ export function ShareModal({ documentId, isOpen, onClose }: ShareModalProps) {
         const error = await res.text()
         toast.error(error || "Failed to share document")
       }
-    } catch (error) {
+    } catch {
       toast.error("Error sharing document")
     } finally {
       setIsLoading(false)
@@ -92,7 +95,7 @@ export function ShareModal({ documentId, isOpen, onClose }: ShareModalProps) {
       } else {
         toast.error("Failed to remove collaborator")
       }
-    } catch (error) {
+    } catch {
       toast.error("Error removing collaborator")
     }
   }
@@ -127,7 +130,7 @@ export function ShareModal({ documentId, isOpen, onClose }: ShareModalProps) {
             />
             <select
               value={role}
-              onChange={(e) => setRole(e.target.value as any)}
+              onChange={(e) => setRole(e.target.value as "VIEWER" | "EDITOR")}
               className="bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
             >
               <option value="VIEWER">Can view</option>

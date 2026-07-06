@@ -128,7 +128,7 @@ export async function GET(
     }
 
     // Only owner or people with roles can see the list
-    if (document.ownerId !== userId && !document.roles.some((r: any) => r.userId === userId)) {
+    if (document.ownerId !== userId && !document.roles.some((r: { userId: string }) => r.userId === userId)) {
       return new NextResponse("Forbidden", { status: 403 })
     }
 
@@ -136,7 +136,7 @@ export async function GET(
       owner: document.owner,
       roles: document.roles,
     })
-  } catch (error) {
+  } catch {
     return new NextResponse("Internal Error", { status: 500 })
   }
 }
@@ -181,7 +181,7 @@ export async function DELETE(
     })
 
     return new NextResponse(null, { status: 204 })
-  } catch (error) {
+  } catch {
     return new NextResponse("Internal Error", { status: 500 })
   }
 }

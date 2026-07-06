@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
-import { ChevronLeft, Share2, History, Sparkles } from "lucide-react"
+import { ChevronLeft, Share2, History } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { ConnectionStatus } from "./connection-status"
 

@@ -2,6 +2,15 @@ import { Metadata } from "next"
 import { auth } from "@/lib/auth"
 import prisma from "@/lib/db"
 import { DocumentCard } from "@/components/dashboard/document-card"
+
+type DocumentType = {
+  id: string;
+  title: string;
+  updatedAt: Date;
+  ownerId: string;
+  owner: { name: string | null; image: string | null; email: string | null };
+  roles: { userId: string; role: string; user: { name: string | null; image: string | null; email: string | null } }[];
+};
 import { FileText } from "lucide-react"
 import { CreateDocumentButton } from "@/components/dashboard/create-document-button"
 
@@ -66,14 +75,14 @@ export default async function DashboardPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {documents.map((doc: any) => {
+          {documents.map((doc: DocumentType) => {
             const role = doc.ownerId === session?.user?.id ? "OWNER" : 
-              doc.roles.find((r: any) => r.userId === session?.user?.id)?.role || "VIEWER"
+              doc.roles.find((r: { userId: string, role: string }) => r.userId === session?.user?.id)?.role || "VIEWER"
               
             return (
               <DocumentCard 
                 key={doc.id} 
-                document={doc as any} 
+                document={doc} 
                 userRole={role} 
               />
             )

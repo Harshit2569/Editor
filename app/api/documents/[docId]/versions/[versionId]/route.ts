@@ -46,7 +46,7 @@ export async function GET(
       createdAt: version.createdAt,
       state: Array.from(version.snapshot)
     })
-  } catch (error) {
+  } catch {
     return new NextResponse("Internal Error", { status: 500 })
   }
 }

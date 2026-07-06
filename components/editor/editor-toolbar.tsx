@@ -4,7 +4,6 @@ import { Editor } from "@tiptap/react"
 import {
   Bold,
   Italic,
-  Underline,
   Strikethrough,
   Code,
   Heading1,
@@ -15,7 +14,6 @@ import {
   Quote,
   Undo,
   Redo,
-  MoreHorizontal
 } from "lucide-react"
 import { AiMenu } from "./ai-menu"
 
@@ -23,35 +21,35 @@ interface EditorToolbarProps {
   editor: Editor | null
 }
 
+const ToolbarButton = ({ 
+  onClick, 
+  isActive = false, 
+  disabled = false, 
+  children 
+}: { 
+  onClick: () => void, 
+  isActive?: boolean, 
+  disabled?: boolean, 
+  children: React.ReactNode 
+}) => (
+  <button
+    onClick={onClick}
+    disabled={disabled}
+    className={`p-2 rounded-md transition-colors flex items-center justify-center
+      ${isActive ? 'bg-blue-500/20 text-blue-400' : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800'}
+      ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+    `}
+  >
+    {children}
+  </button>
+)
+
+const Divider = () => <div className="w-px h-6 bg-zinc-800 mx-1" />
+
 export function EditorToolbar({ editor }: EditorToolbarProps) {
   if (!editor) {
     return null
   }
-
-  const ToolbarButton = ({ 
-    onClick, 
-    isActive = false, 
-    disabled = false, 
-    children 
-  }: { 
-    onClick: () => void, 
-    isActive?: boolean, 
-    disabled?: boolean, 
-    children: React.ReactNode 
-  }) => (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={`p-2 rounded-md transition-colors flex items-center justify-center
-        ${isActive ? 'bg-blue-500/20 text-blue-400' : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800'}
-        ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-      `}
-    >
-      {children}
-    </button>
-  )
-
-  const Divider = () => <div className="w-px h-6 bg-zinc-800 mx-1" />
 
   return (
     <div className="flex flex-wrap items-center gap-1 p-2 bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800 sticky top-0 z-20">

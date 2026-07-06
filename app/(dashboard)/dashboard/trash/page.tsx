@@ -2,6 +2,15 @@ import { Metadata } from "next"
 import { auth } from "@/lib/auth"
 import prisma from "@/lib/db"
 import { DocumentCard } from "@/components/dashboard/document-card"
+
+type DocumentType = {
+  id: string;
+  title: string;
+  updatedAt: Date;
+  ownerId: string;
+  owner: { name: string | null; image: string | null; email: string | null };
+  roles: { userId: string; role: string; user: { name: string | null; image: string | null; email: string | null } }[];
+};
 import { Trash2, AlertCircle } from "lucide-react"
 
 export const metadata: Metadata = {
@@ -69,11 +78,11 @@ export default async function TrashPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {documents.map((doc: any) => {
+          {documents.map((doc: DocumentType) => {
             return (
               <DocumentCard 
                 key={doc.id} 
-                document={doc as any} 
+                document={doc} 
                 userRole="OWNER" 
                 isTrashPage={true}
               />
