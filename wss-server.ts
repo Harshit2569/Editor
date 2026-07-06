@@ -7,7 +7,7 @@ import { PrismaPg } from "@prisma/adapter-pg"
 import { Pool } from "pg"
 import * as Y from "yjs"
 
-const port = parseInt(process.env.WSS_PORT || "1234", 10)
+const port = parseInt(process.env.PORT || process.env.WSS_PORT || "1234", 10)
 
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL is not defined.")
