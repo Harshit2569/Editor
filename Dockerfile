@@ -55,7 +55,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 # We need the custom server to handle WebSockets
-COPY --from=builder --chown=nextjs:nodejs /app/server.ts ./server.ts
+COPY --from=builder --chown=nextjs:nodejs /app/wss-server.ts ./wss-server.ts
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 COPY --from=deps --chown=nextjs:nodejs /app/node_modules ./node_modules
 
@@ -69,4 +69,4 @@ ENV HOSTNAME="0.0.0.0"
 # Start the custom server using tsx
 # In a real production environment, you should precompile server.ts to JS
 # but for this demonstration, running it with tsx is sufficient.
-CMD ["node_modules/.bin/tsx", "server.ts"]
+CMD ["node_modules/.bin/tsx", "wss-server.ts"]
