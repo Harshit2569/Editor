@@ -1,0 +1,121 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+model User {
+  id            String         @id @default(uuid())
+  name          String?
+  email         String?        @unique
+  emailVerified DateTime?
+  passwordHash  String?
+  image         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  accounts      Account[]
+  DocVersion    DocVersion[]
+  ownedDocs     Document[]
+  documents     DocumentRole[]
+  sessions      Session[]
+}
+
+model Account {
+  id                String  @id @default(uuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Document {
+  id        String         @id @default(uuid())
+  title     String         @default("Untitled Document")
+  ydocState Bytes?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  trashedAt DateTime?
+  ownerId   String
+  versions  DocVersion[]
+  owner     User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  roles       DocumentRole[]
+  syncLogs    SyncLog[]
+  invitations Invitation[]
+}
+
+model DocumentRole {
+  id         String   @id @default(uuid())
+  documentId String
+  userId     String
+  role       Role
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, userId])
+}
+
+model DocVersion {
+  id         String   @id @default(uuid())
+  documentId String
+  snapshot   Bytes
+  label      String?
+  createdBy  String
+  createdAt  DateTime @default(now())
+  author     User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+}
+
+model SyncLog {
+  id         String   @id @default(uuid())
+  documentId String
+  userId     String
+  payload    Bytes
+  appliedAt  DateTime @default(now())
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  OWNER
+  EDITOR
+  VIEWER
+}
+
+model Invitation {
+  id         String   @id @default(uuid())
+  email      String
+  documentId String
+  role       Role
+  createdAt  DateTime @default(now())
+
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([email, documentId])
+}
