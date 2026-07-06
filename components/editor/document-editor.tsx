@@ -95,35 +95,7 @@ export function DocumentEditor({ documentId, onYdocReady }: DocumentEditorProps)
     }
   }, [documentId, session?.user?.id, setStatus])
 
-  // Initialize TipTap — only with Collaboration extension once synced
-  const editor = useEditor({
-    immediatelyRender: false,
-    extensions: (provider && isSynced) ? [
-      StarterKit.configure({
-        history: false,
-      } as any),
-      Collaboration.configure({
-        document: provider.ydoc,
-      }),
-      CollaborationCursor.configure({
-        provider: provider.provider,
-        user: {
-          name: session?.user?.name || session?.user?.email || "Anonymous",
-          color: getRandomColor(session?.user?.id),
-        }
-      }),
-    ] : [
-      StarterKit,
-    ],
-    editorProps: {
-      attributes: {
-        class: 'prose prose-invert prose-blue max-w-none focus:outline-none min-h-[500px]',
-      },
-    },
-    content: '',
-  }, [provider, isSynced])
-
-  if (!provider || !isSynced || !editor) {
+  if (!provider || !isSynced) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[500px]">
         <div className="flex flex-col items-center gap-4">
@@ -136,13 +108,7 @@ export function DocumentEditor({ documentId, onYdocReady }: DocumentEditorProps)
 
   return (
     <div className="flex flex-col h-full bg-zinc-950 text-zinc-100">
-      <EditorToolbar editor={editor} />
-      
-      <div className="flex-1 overflow-auto p-4 sm:p-8 lg:p-12 relative z-10">
-        <div className="max-w-4xl mx-auto bg-zinc-900/30 backdrop-blur border border-zinc-800/50 rounded-xl p-8 sm:p-12 shadow-2xl min-h-full">
-          <EditorContent editor={editor} />
-        </div>
-      </div>
+      <TiptapEditor provider={provider} session={session} />
 
       {/* Collaboration Cursor Styles */}
       <style jsx global>{`
@@ -173,6 +139,47 @@ export function DocumentEditor({ documentId, onYdocReady }: DocumentEditorProps)
         }
       `}</style>
     </div>
+  )
+}
+
+function TiptapEditor({ provider, session }: { provider: DocumentProvider, session: any }) {
+  const editor = useEditor({
+    immediatelyRender: false,
+    extensions: [
+      StarterKit.configure({
+        history: false,
+      } as any),
+      Collaboration.configure({
+        document: provider.ydoc,
+      }),
+      CollaborationCursor.configure({
+        provider: provider.provider,
+        user: {
+          name: session?.user?.name || session?.user?.email || "Anonymous",
+          color: getRandomColor(session?.user?.id),
+        }
+      }),
+    ],
+    editorProps: {
+      attributes: {
+        class: 'prose prose-invert prose-blue max-w-none focus:outline-none min-h-[500px]',
+      },
+    },
+    content: '',
+  })
+
+  if (!editor) return null
+
+  return (
+    <>
+      <EditorToolbar editor={editor} />
+      
+      <div className="flex-1 overflow-auto p-4 sm:p-8 lg:p-12 relative z-10">
+        <div className="max-w-4xl mx-auto bg-zinc-900/30 backdrop-blur border border-zinc-800/50 rounded-xl p-8 sm:p-12 shadow-2xl min-h-full">
+          <EditorContent editor={editor} />
+        </div>
+      </div>
+    </>
   )
 }
 
