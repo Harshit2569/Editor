@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react"
 import { useSession } from "next-auth/react"
 import { useEditor, EditorContent } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
-import Collaboration from "@tiptap/extension-collaboration"
+import { YjsCollaboration } from "@/lib/crdt/collaboration-extension"
 import { DocumentProvider } from "@/lib/crdt/document-provider"
 import { SyncEngine, useSyncStore } from "@/lib/crdt/sync-engine"
 import { getRandomColor } from "@/lib/crdt/awareness"
@@ -77,14 +77,6 @@ export function DocumentEditor({ documentId, onYdocReady }: DocumentEditorProps)
       onYdocReady(docProvider.ydoc)
     }
 
-    // Set awareness user info (for when WebSocket server is available)
-    if (docProvider.provider.awareness) {
-      docProvider.provider.awareness.setLocalStateField("user", {
-        name: session?.user?.name || "Anonymous",
-        color: getRandomColor(session?.user?.id),
-      })
-    }
-
     return () => {
       destroyed = true
       clearTimeout(fallbackTimer)
@@ -107,20 +99,67 @@ export function DocumentEditor({ documentId, onYdocReady }: DocumentEditorProps)
 
   return (
     <div className="flex flex-col h-full bg-zinc-950 text-zinc-100">
-      <TiptapEditor provider={provider} />
+      <TiptapEditor provider={provider} session={session} />
+
+      {/* Collaboration Cursor Styles (rendered by y-prosemirror's yCursorPlugin) */}
+      <style jsx global>{`
+        /* Remote user cursor caret */
+        .yRemoteSelectionHead {
+          position: relative;
+          border-left: 2px solid orange;
+          margin-left: -1px;
+          margin-right: -1px;
+          pointer-events: none;
+          word-break: normal;
+        }
+
+        /* Remote user name label (child div of the caret widget) */
+        .yRemoteSelectionHead > div {
+          position: absolute;
+          top: -1.4em;
+          left: -2px;
+          font-size: 0.7rem;
+          font-weight: 600;
+          line-height: 1;
+          white-space: nowrap;
+          color: white;
+          padding: 2px 6px;
+          border-radius: 4px 4px 4px 0;
+          user-select: none;
+          pointer-events: none;
+          opacity: 0.9;
+          transition: opacity 0.2s ease;
+          z-index: 50;
+        }
+
+        /* Remote user text selection highlight */
+        .yRemoteSelection {
+          opacity: 0.45;
+        }
+      `}</style>
     </div>
   )
 }
 
-function TiptapEditor({ provider }: { provider: DocumentProvider }) {
+function TiptapEditor({ provider, session }: { provider: DocumentProvider; session: any }) {
+  const userColor = getRandomColor(session?.user?.id)
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({
+        // Disable ProseMirror's built-in history — Yjs handles undo/redo
         history: false,
       } as any),
-      Collaboration.configure({
+      YjsCollaboration.configure({
         document: provider.ydoc,
+        awareness: provider.provider.awareness,
+        user: {
+          name: session?.user?.name || session?.user?.email || "Anonymous",
+          color: userColor,
+          colorLight: `${userColor}33`,
+        },
+        field: "default",
       }),
     ],
     editorProps: {
