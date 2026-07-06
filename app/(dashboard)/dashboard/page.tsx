@@ -66,9 +66,9 @@ export default async function DashboardPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {documents.map((doc) => {
+          {documents.map((doc: any) => {
             const role = doc.ownerId === session?.user?.id ? "OWNER" : 
-              doc.roles.find(r => r.userId === session?.user?.id)?.role || "VIEWER"
+              doc.roles.find((r: any) => r.userId === session?.user?.id)?.role || "VIEWER"
               
             return (
               <DocumentCard 
