@@ -13,8 +13,23 @@ if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL is not defined.")
 }
 
-// Prisma Client (Standard connection, handles Neon perfectly out of the box)
-const prisma = new PrismaClient()
+// PostgreSQL connection pool
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+})
+
+// CRITICAL FIX: Prevent Node.js from crashing when Neon drops an idle connection
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle pg client:', err)
+})
+
+// Prisma driver adapter
+const adapter = new PrismaPg(pool)
+
+// Prisma Client
+const prisma = new PrismaClient({
+  adapter,
+})
 
 // Initialize Hocuspocus Server
 const hocuspocusServer = new Server({
