@@ -5,7 +5,6 @@ import { useSession } from "next-auth/react"
 import { useEditor, EditorContent } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import Collaboration from "@tiptap/extension-collaboration"
-import CollaborationCursor from "@tiptap/extension-collaboration-cursor"
 import { DocumentProvider } from "@/lib/crdt/document-provider"
 import { SyncEngine, useSyncStore } from "@/lib/crdt/sync-engine"
 import { getRandomColor } from "@/lib/crdt/awareness"
@@ -108,41 +107,12 @@ export function DocumentEditor({ documentId, onYdocReady }: DocumentEditorProps)
 
   return (
     <div className="flex flex-col h-full bg-zinc-950 text-zinc-100">
-      <TiptapEditor provider={provider} session={session} />
-
-      {/* Collaboration Cursor Styles */}
-      <style jsx global>{`
-        /* Collaboration cursors */
-        .collaboration-cursor__caret {
-          border-left: 2px solid #000;
-          border-right: 2px solid #000;
-          margin-left: -2px;
-          margin-right: -2px;
-          pointer-events: none;
-          position: relative;
-          word-break: normal;
-        }
-
-        /* Render the username above the caret */
-        .collaboration-cursor__label {
-          border-radius: 3px 3px 3px 0;
-          color: #fff;
-          font-size: 12px;
-          font-weight: 600;
-          left: -2px;
-          line-height: normal;
-          padding: 2px 6px;
-          position: absolute;
-          top: -1.8em;
-          user-select: none;
-          white-space: nowrap;
-        }
-      `}</style>
+      <TiptapEditor provider={provider} />
     </div>
   )
 }
 
-function TiptapEditor({ provider, session }: { provider: DocumentProvider, session: any }) {
+function TiptapEditor({ provider }: { provider: DocumentProvider }) {
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -151,9 +121,6 @@ function TiptapEditor({ provider, session }: { provider: DocumentProvider, sessi
       } as any),
       Collaboration.configure({
         document: provider.ydoc,
-      }),
-      CollaborationCursor.configure({
-        provider: provider.provider,
       }),
     ],
     editorProps: {
@@ -178,4 +145,3 @@ function TiptapEditor({ provider, session }: { provider: DocumentProvider, sessi
     </>
   )
 }
-
