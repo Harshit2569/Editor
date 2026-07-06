@@ -50,9 +50,10 @@ const hocuspocusServer = new Server({
         return doc.ydocState
       },
       store: async ({ documentName, state, document }: any) => {
-        // Use V2 encoding for significantly smaller document state size over time
-        const v2State = Y.encodeStateAsUpdateV2(document)
-        const stateBuffer = Buffer.from(v2State)
+        // Must use V1 encoding because Hocuspocus natively applies V1 updates when fetching.
+        // Using V2 will silently break the Y.Doc on the server.
+        const v1State = Y.encodeStateAsUpdate(document)
+        const stateBuffer = Buffer.from(v1State)
         
         if (stateBuffer.byteLength > 10_485_760) {
           console.error(`Document ${documentName} exceeded size limit`)
