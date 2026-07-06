@@ -71,6 +71,12 @@ export function DocumentEditor({ documentId, onYdocReady }: DocumentEditorProps)
     // Connect to websocket (after listeners are attached)
     docProvider.connect()
 
+    // Debugging logs for Hocuspocus connection lifecycle
+    docProvider.provider.on('status', (data: any) => console.log('[Hocuspocus] Status changed:', data.status))
+    docProvider.websocketProvider.on('status', (data: any) => console.log('[Hocuspocus WS] Status changed:', data.status))
+    docProvider.provider.on('disconnect', () => console.log('[Hocuspocus] Disconnected'))
+    docProvider.provider.on('destroy', () => console.log('[Hocuspocus] Destroyed'))
+
     setProvider(docProvider)
     
     if (onYdocReady) {
