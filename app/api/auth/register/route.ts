@@ -50,7 +50,7 @@ export async function POST(req: Request) {
     })
 
     if (pendingInvitations.length > 0) {
-      const documentRoles = pendingInvitations.map((inv) => ({
+      const documentRoles = pendingInvitations.map((inv: any) => ({
         documentId: inv.documentId,
         userId: user.id,
         role: inv.role,
