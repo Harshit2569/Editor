@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react"
 import { useEditor, EditorContent } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import Collaboration from "@tiptap/extension-collaboration"
+import CollaborationCursor from "@tiptap/extension-collaboration-cursor"
 import { DocumentProvider } from "@/lib/crdt/document-provider"
 import { SyncEngine, useSyncStore } from "@/lib/crdt/sync-engine"
 import { getRandomColor } from "@/lib/crdt/awareness"
@@ -103,6 +104,13 @@ export function DocumentEditor({ documentId, onYdocReady }: DocumentEditorProps)
       } as any),
       Collaboration.configure({
         document: provider.ydoc,
+      }),
+      CollaborationCursor.configure({
+        provider: provider.provider,
+        user: {
+          name: session?.user?.name || session?.user?.email || "Anonymous",
+          color: getRandomColor(session?.user?.id),
+        }
       }),
     ] : [
       StarterKit,
