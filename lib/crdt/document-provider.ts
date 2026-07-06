@@ -5,6 +5,7 @@ import { IndexeddbPersistence } from "y-indexeddb"
 export class DocumentProvider {
   public ydoc: Y.Doc
   public provider: HocuspocusProvider
+  public websocketProvider: HocuspocusProviderWebsocket
   public persistence: IndexeddbPersistence
 
   constructor(documentId: string, token: string) {
@@ -20,7 +21,7 @@ export class DocumentProvider {
       ? `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.hostname}:1234`
       : "ws://localhost:1234")
 
-    const websocketProvider = new HocuspocusProviderWebsocket({
+    this.websocketProvider = new HocuspocusProviderWebsocket({
       url: wsUrl,
       autoConnect: false, // Don't auto-connect; we connect manually after attaching listeners
     })
@@ -29,7 +30,7 @@ export class DocumentProvider {
       name: documentId,
       document: this.ydoc,
       token, // JWT or session token for authentication
-      websocketProvider,
+      websocketProvider: this.websocketProvider,
     })
 
     // Log persistence errors
@@ -39,15 +40,16 @@ export class DocumentProvider {
   }
 
   connect() {
-    this.provider.connect()
+    this.websocketProvider.connect()
   }
 
   disconnect() {
-    this.provider.disconnect()
+    this.websocketProvider.disconnect()
   }
 
   destroy() {
     this.provider.destroy()
+    this.websocketProvider.disconnect()
     this.ydoc.destroy()
   }
 }

@@ -154,10 +154,6 @@ function TiptapEditor({ provider, session }: { provider: DocumentProvider, sessi
       }),
       CollaborationCursor.configure({
         provider: provider.provider,
-        user: {
-          name: session?.user?.name || session?.user?.email || "Anonymous",
-          color: getRandomColor(session?.user?.id),
-        }
       }),
     ],
     editorProps: {
