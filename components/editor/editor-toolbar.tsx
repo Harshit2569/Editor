@@ -17,6 +17,7 @@ import {
   Redo,
   MoreHorizontal
 } from "lucide-react"
+import { AiMenu } from "./ai-menu"
 
 interface EditorToolbarProps {
   editor: Editor | null
@@ -54,6 +55,10 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
 
   return (
     <div className="flex flex-wrap items-center gap-1 p-2 bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800 sticky top-0 z-20">
+      <AiMenu editor={editor} />
+      
+      <Divider />
+
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleBold().run()}
         isActive={editor.isActive('bold')}
